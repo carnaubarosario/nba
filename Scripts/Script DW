@@ -1,0 +1,82 @@
+-- Criação da Tabela de Dimensão para Jogadores
+CREATE TABLE dim_jogador (
+    jogador_id SERIAL PRIMARY KEY,
+    jogador VARCHAR(100) NOT NULL
+);
+
+-- Criação da Tabela de Dimensão para Times
+CREATE TABLE dim_equipe (
+    equipe_id SERIAL PRIMARY KEY,
+    equipe VARCHAR(100) NOT NULL
+);
+
+-- Criação da Tabela de Dimensão para Adversários
+CREATE TABLE dim_oponente (
+    oponente_id SERIAL PRIMARY KEY,
+    oponente VARCHAR(100) NOT NULL
+);
+
+-- Criação da Tabela de Dimensão para Datas
+CREATE TABLE dim_tempo (
+    tempo_id SERIAL PRIMARY KEY,
+    game_date DATE NOT NULL,
+    ano INTEGER NOT NULL,
+    mes INTEGER NOT NULL,
+    dia INTEGER NOT NULL
+);
+
+-- Criação da Tabela Fato
+CREATE TABLE fat_performance (
+    fat_id SERIAL PRIMARY KEY,
+    jogador_id INTEGER,
+    equipe_id INTEGER,
+    oponente_id INTEGER,
+    tempo_id INTEGER,
+    result VARCHAR(10),
+    minutes_played DECIMAL,
+    fg INTEGER,
+    fga INTEGER,
+    three_p INTEGER,
+    three_pa INTEGER,
+    ft INTEGER,
+    fta INTEGER,
+    orb INTEGER,
+    drb INTEGER,
+    trb INTEGER,
+    ast INTEGER,
+    stl INTEGER,
+    blk INTEGER,
+    tov INTEGER,
+    pf INTEGER,
+    pts INTEGER,
+    gmsc DECIMAL
+);
+
+-- Adição das Chaves Estrangeiras
+ALTER TABLE fat_performance
+ADD CONSTRAINT fk_jogador
+FOREIGN KEY (jogador_id) REFERENCES dim_jogador(jogador_id);
+
+ALTER TABLE fat_performance
+ADD CONSTRAINT fk_equipe
+FOREIGN KEY (equipe_id) REFERENCES dim_equipe(equipe_id);
+
+ALTER TABLE fat_performance
+ADD CONSTRAINT fk_oponente
+FOREIGN KEY (oponente_id) REFERENCES dim_oponente(oponente_id);
+
+ALTER TABLE fat_performance
+ADD CONSTRAINT fk_tempo
+FOREIGN KEY (tempo_id) REFERENCES dim_tempo(tempo_id);
+
+-- Criação de Índices nas Tabelas de Dimensão
+CREATE INDEX idx_jogador ON dim_jogador(jogador);
+CREATE INDEX idx_equipe ON dim_equipe(equipe);
+CREATE INDEX idx_oponente ON dim_oponente(oponente);
+CREATE INDEX idx_game_date ON dim_tempo(game_date);
+
+-- Criação de Índices na Tabela Fato
+CREATE INDEX idx_fat_performance_jogador_id ON fat_performance(jogador_id);
+CREATE INDEX idx_fat_performance_equipe_id ON fat_performance(equipe_id);
+CREATE INDEX idx_fat_performance_oponente_id ON fat_performance(oponente_id);
+CREATE INDEX idx_fat_performance_tempo_id ON fat_performance(tempo_id);
