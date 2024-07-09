@@ -1,0 +1,86 @@
+Nome da Medida: Pareto
+
+Objetivo:
+A medida Pareto calcula a porcentagem acumulada de pontos (pts) em relação ao total de pontos, considerando a regra de Pareto (ou regra 80/20). 
+Essa medida é útil para identificar os jogadores que contribuem com a maior parte dos pontos.
+
+Componentes do Código DAX:
+
+TotalPontos:
+
+dax
+Copiar código
+VAR TotalPontos = CALCULATE(sum('public fat_performance'[pts]), ALLSELECTED('public fat_performance'))
+Descrição: Calcula a soma total dos pontos (pts) na tabela public fat_performance, considerando a seleção atual no relatório (utilizando ALLSELECTED).
+Função: CALCULATE é usada para modificar o contexto de filtragem da soma dos pontos.
+TotalAtual:
+
+dax
+Copiar código
+VAR TotalAtual = SUM('public fat_performance'[pts])
+Descrição: Calcula a soma dos pontos (pts) para o contexto de linha atual.
+Função: SUM soma os valores da coluna pts na tabela public fat_performance para o contexto de linha atual.
+tbResumo:
+
+dax
+Copiar código
+VAR tbResumo = 
+ SUMMARIZE(
+     ALLSELECTED('public fat_performance'),
+     'public dim_jogador'[jogador],
+     "Total", sum('public fat_performance'[pts])
+     )
+Descrição: Cria uma tabela resumida (tbResumo) que agrupa os dados por jogador ('public dim_jogador'[jogador]) e calcula a soma dos pontos (pts) para cada jogador.
+Função: SUMMARIZE é usada para criar uma tabela agregada. ALLSELECTED é utilizado para manter o contexto de filtragem atual.
+TotalAcumulado:
+
+dax
+Copiar código
+VAR TotalAcumulado = 
+ SUMX(filter(tbResumo, [Total] >= TotalAtual, [Total])
+Descrição: Calcula o total acumulado de pontos para jogadores cujos pontos somados são maiores ou iguais ao total atual (TotalAtual).
+Função: SUMX é usada para iterar sobre a tabela tbResumo e somar os valores da coluna calculada Total onde o total é maior ou igual ao TotalAtual. FILTER é utilizado para aplicar esta condição.
+Resultado Final:
+
+dax
+Copiar código
+return TotalAcumulado/TotalPontos
+Descrição: Calcula a porcentagem do total acumulado de pontos em relação ao total de pontos.
+Função: A expressão final divide TotalAcumulado por TotalPontos para obter a porcentagem desejada.
+Resumo:
+A medida Pareto é utilizada para calcular a porcentagem acumulada dos pontos dos jogadores, permitindo analisar quais jogadores são responsáveis pela maior parte dos pontos (seguindo o princípio de Pareto). 
+Este cálculo é útil para identificar jogadores de alto desempenho e entender a distribuição dos pontos dentro da equipe ou competição.
+
+Objetivo:
+A medida Número_Vitórias_Por_Jogador calcula o número de vitórias por jogador na tabela public fat_performance. Esta medida conta quantas vezes um jogador obteve um resultado de vitória, indicado pela letra "W" na coluna result.
+
+Componentes do Código DAX:
+
+CALCULATE:
+
+dax
+Copiar código
+CALCULATE(
+    COUNTROWS('public fat_performance'),
+    'public fat_performance'[result] = "W"
+)
+Descrição: A função CALCULATE é usada para modificar o contexto de filtragem da expressão especificada.
+Função: Aplica um filtro onde a coluna result é igual a "W" (vitória) e conta o número de linhas que atendem a esse critério.
+COUNTROWS:
+
+dax
+Copiar código
+COUNTROWS('public fat_performance')
+Descrição: A função COUNTROWS conta o número de linhas na tabela public fat_performance dentro do contexto de filtro fornecido.
+Função: Contar todas as linhas onde o resultado (result) é "W".
+Código DAX Completo:
+dax
+Copiar código
+Número_Vitórias_Por_Jogador = 
+CALCULATE(
+    COUNTROWS('public fat_performance'),
+    'public fat_performance'[result] = "W"
+)
+Resumo:
+A medida Número_Vitórias_Por_Jogador calcula o total de vitórias de um jogador, contando as linhas na tabela public fat_performance onde a coluna result tem o valor "W". 
+Esta medida é útil para determinar a quantidade de vitórias que cada jogador obteve, permitindo uma análise detalhada do desempenho de cada jogador em termos de vitórias.
